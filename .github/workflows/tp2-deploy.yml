@@ -16,9 +16,9 @@ on:
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
-     defaults:
-      run:
-        working-directory: tp2
+      defaults:
+        run:
+          working-directory: tp2
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
