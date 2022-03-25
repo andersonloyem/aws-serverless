@@ -10,8 +10,8 @@ on:
     - 'tp2/**'
   pull_request:
     branches: [ main ]
-    paths:
-    - 'tp2/**'
+    #paths:
+    #- 'tp2/**'
 
 jobs:
   deploy-dev:
