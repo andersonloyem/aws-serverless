@@ -40,7 +40,7 @@ jobs:
     #  run: npm run assets-dev
     - name: Deploy Lambda functions
       run: | 
-        cd tp2
+        ls -al
         sls deploy -s dev
     # Optional (to use with serverless-finch serverless plugin)
     #- name: Deploy assets to S3
