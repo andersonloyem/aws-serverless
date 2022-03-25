@@ -34,4 +34,4 @@ jobs:
 # Run Unit tests- Specify unit tests here 
 
 # sam deploy
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name sam-assurly --s3-bucket aws-assurly-dev --capabilities CAPABILITY_IAM --region eu-west-3
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name sam-tp2 --s3-bucket sam-bucket-code --capabilities CAPABILITY_IAM --region eu-west-3
