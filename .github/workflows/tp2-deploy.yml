@@ -14,34 +14,21 @@ on:
     #- 'tp2/**'
 
 jobs:
-  deploy-dev:
+  build-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tp2
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '12.13.x'
-    - name: Install Serverless Framework
-      run: npm install -g serverless
-    - name: Serverless AWS authentication
-      run: sls config credentials --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    - name: Create env file
-      run: | # cp sample.env.yml env.yml
-        cat > env.yml << EOF
-        ${{ secrets.ENV }}
-        EOF
-    - name: Install NPM dependencies
-      run: npm install
-    # Optional
-    #- name: Build assets
-    #  run: npm run assets-dev
-    - name: Deploy Lambda functions
-      run: | 
-        ls -al
-        sls deploy
-    # Optional (to use with serverless-finch serverless plugin)
-    #- name: Deploy assets to S3
-    #  run: sls client deploy --no-delete-contents --no-confirm -s dev
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: aws-actions/setup-sam@v1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+      # sam build 
+      - run: sam build --use-container
+
+# Run Unit tests- Specify unit tests here 
+
+# sam deploy
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name sam-assurly --s3-bucket aws-assurly-dev --capabilities CAPABILITY_IAM --region eu-west-3
