@@ -9,6 +9,15 @@ Description: >
 Globals:
   Function:
     Timeout: 3
+    Runtime: python3.8
+
+Parameters:
+  Table:
+    Type: String
+    Default: Article
+  Region:
+    Type: String
+    Default: eu-west-3
 
 Resources:
 
@@ -17,7 +26,6 @@ Resources:
     Properties:
       CodeUri: src/article/post_article
       Handler: app.lambda_handler
-      Runtime: python3.9
       Environment:
         Variables:
           TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
@@ -36,7 +44,9 @@ Resources:
     Properties:
       CodeUri: src/article/get_article
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Environment:
+        Variables:
+          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
       Architectures:
         - x86_64
       Events:
@@ -54,9 +64,9 @@ Resources:
     Properties:
       CodeUri: src/article/delete_article
       Handler: app.lambda_handler
-      Runtime: python3.9
-      Architectures:
-        - x86_64
+      Environment:
+        Variables:
+          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -72,9 +82,9 @@ Resources:
     Properties:
       CodeUri: src/article/list_article
       Handler: app.lambda_handler
-      Runtime: python3.9
-      Architectures:
-        - x86_64
+      Environment:
+        Variables:
+          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
