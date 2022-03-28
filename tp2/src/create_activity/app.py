@@ -5,38 +5,39 @@ import uuid
 from datetime import datetime
 
 
-def lambda_handler(event, context):
+def lambda_handler(message, context):
 
-    if ('body' not in event):
+    if ('body' not in message or
+            message['httpMethod'] != 'POST'):
         return {
             'statusCode': 400,
             'headers': {},
             'body': json.dumps({'msg': 'Bad Request'})
         }
 
-    table_name = os.environ.get('TABLE', 'Article')
-    region = os.environ.get('REGION', 'eu-west-3')
+    table_name = os.environ.get('TABLE', 'Activities')
+    region = os.environ.get('REGION', 'us-east-1')
     aws_environment = os.environ.get('AWSENV', 'AWS')
 
     if aws_environment == 'AWS_SAM_LOCAL':
-        article_table = boto3.resource(
+        activities_table = boto3.resource(
             'dynamodb',
             endpoint_url='http://dynamodb:8000'
         )
     else:
-        article_table = boto3.resource(
+        activities_table = boto3.resource(
             'dynamodb',
             region_name=region
         )
 
-    table = article_table.Table(table_name)
-    article = json.loads(event)['body']
-    print(article)
+    table = activities_table.Table(table_name)
+    activity = json.loads(message['body'])
+
     params = {
         'id': str(uuid.uuid4()),
         'date': str(datetime.timestamp(datetime.now())),
-        'stage': article['stage'],
-        'description': article['description']
+        'stage': activity['stage'],
+        'description': activity['description']
     }
 
     response = table.put_item(
@@ -48,5 +49,5 @@ def lambda_handler(event, context):
     return {
         'statusCode': 201,
         'headers': {},
-        'body': json.dumps({'msg': 'Article created'})
+        'body': json.dumps({'msg': 'Activity created'})
     }

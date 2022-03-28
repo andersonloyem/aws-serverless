@@ -1,115 +1,185 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  tp2
+  sam-python-crud-sample
 
-  Sample SAM Template for tp2
+  SAM Template for sam-python-crud-sample
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 60
+
+Parameters:
+  Table:
+    Type: String
+    Default: Activities
+  Region:
+    Type: String
+    Default: eu-west-3
+  AWSEnv:
+    Type: String
+    Default: AWS
 
 Resources:
-
-  PostArticleFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  CreateActivityFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/article/post_article
+      CodeUri: src/create_activity/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.8
       Environment:
         Variables:
-          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
+          TABLE: !Ref Table
+          REGION: !Ref Region
+          AWSENV: !Ref AWSEnv
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        CreateActivities:
+          Type: Api
           Properties:
-            Path: /article
+            Path: /activities
             Method: post
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: "*"
-
-  GetArticleFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+            TableName: !Ref ActivitiesTable
+  GetActivityFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/article/get_article
+      CodeUri: src/get_activity/
       Handler: app.lambda_handler
-      Runtime: python3.9
-      Architectures:
-        - x86_64
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE: !Ref Table
+          REGION: !Ref Region
+          AWSENV: !Ref AWSEnv
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        CreateActivities:
+          Type: Api
           Properties:
-            Path: /article
+            Path: /activities/{id}
             Method: get
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref ArticleTable
-
-  DeleteArticleFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+            TableName: !Ref ActivitiesTable
+  ListActivitiesFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/article/delete_article
+      CodeUri: src/list_activities/
       Handler: app.lambda_handler
-      Runtime: python3.9
-      Architectures:
-        - x86_64
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE: !Ref Table
+          REGION: !Ref Region
+          AWSENV: !Ref AWSEnv
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        CreateActivities:
+          Type: Api
           Properties:
-            Path: /article
+            Path: /activities/
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ActivitiesTable
+  UpdateActivityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/update_activity/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE: !Ref Table
+          REGION: !Ref Region
+          AWSENV: !Ref AWSEnv
+      Events:
+        CreateActivities:
+          Type: Api
+          Properties:
+            Path: /activities/{id}
+            Method: put
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ActivitiesTable
+  DeleteActivityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/delete_activity/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE: !Ref Table
+          REGION: !Ref Region
+          AWSENV: !Ref AWSEnv
+      Events:
+        CreateActivities:
+          Type: Api
+          Properties:
+            Path: /activities/{id}/{date}
             Method: delete
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref ArticleTable
-    
-  ListArticleFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: src/article/list_article
-      Handler: app.lambda_handler
-      Runtime: python3.9
-      Architectures:
-        - x86_64
-      Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /articles
-            Method: get
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ArticleTable
-
-  ArticleTable:
+            TableName: !Ref ActivitiesTable
+  ActivitiesTable:
     Type: AWS::DynamoDB::Table
-    Properties: 
-      AttributeDefinitions: 
-        - AttributeName: id
-          AttributeType: S
-      KeySchema: 
-        - AttributeName: id
-          KeyType: HASH
-      ProvisionedThroughput: 
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      StreamSpecification:
-        StreamViewType: NEW_IMAGE
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "id"
+          AttributeType: "S"
+        -
+          AttributeName: "date"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "id"
+          KeyType: "HASH"
+        -
+          AttributeName: "date"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "1"
+        WriteCapacityUnits: "1"
+      TableName: "Activities"
 
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  articleApi:
-    Description: "API Gateway endpoint URL for Prod stage for article function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/dev/article/"
-  articleFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt PostArticleFunction.Arn
-  articleFunctionIamRole:
-    Description: "Implicit IAM Role created for article function"
-    Value: !GetAtt PostArticleFunctionRole.Arn
+  ActivitiesApi:
+    Description: "API Gateway endpoint URL for Prod stage for Create Activity Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/activities/"
+  CreateActivityFunction:
+    Description: "Create Activity Lambda Function ARN"
+    Value: !GetAtt CreateActivityFunction.Arn
+  CreateActivityFunctionIamRole:
+    Description: "Implicit IAM Role created for Create Activity function"
+    Value: !GetAtt CreateActivityFunctionRole.Arn
+  GetActivityFunction:
+    Description: "Get Activity Lambda Function ARN"
+    Value: !GetAtt GetActivityFunction.Arn
+  GetActivityFunctionIamRole:
+    Description: "Implicit IAM Role created for Get Activity function"
+    Value: !GetAtt GetActivityFunctionRole.Arn
+  ListActivitiesFunction:
+    Description: "List Activities Lambda Function ARN"
+    Value: !GetAtt ListActivitiesFunction.Arn
+  ListActivitiesFunctionIamRole:
+    Description: "Implicit IAM Role created for List Activities function"
+    Value: !GetAtt ListActivitiesFunctionRole.Arn
+  UpdateActivityFunction:
+    Description: "Update Activity Lambda Function ARN"
+    Value: !GetAtt UpdateActivityFunction.Arn
+  UpdateActivityFunctionIamRole:
+    Description: "Implicit IAM Role created for Update Activity function"
+    Value: !GetAtt UpdateActivityFunctionRole.Arn
+  DeleteActivityFunction:
+    Description: "Delete Activity Lambda Function ARN"
+    Value: !GetAtt DeleteActivityFunction.Arn
+  DeleteActivityFunctionIamRole:
+    Description: "Implicit IAM Role created for Delete Activity function"
+    Value: !GetAtt DeleteActivityFunctionRole.Arn
+  ActivitiesTable:
+    Description: "DynamoDB Table"
+    Value: !Ref ActivitiesTable
+  ActivitiesTableArn:
+    Description: "DynamoDB Table ARN"
+    Value: !GetAtt ActivitiesTable.Arn
