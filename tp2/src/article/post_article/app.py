@@ -1,42 +1,53 @@
+import boto3
+import os
 import json
-
-# import requests
+import uuid
+from datetime import datetime
 
 
 def lambda_handler(event, context):
-    """Sample pure Lambda function
 
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
+    if ('body' not in event or
+            event['httpMethod'] != 'POST'):
+        return {
+            'statusCode': 400,
+            'headers': {},
+            'body': json.dumps({'msg': 'Bad Request'})
+        }
 
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+    table_name = os.environ.get('TABLE', 'Article')
+    region = os.environ.get('REGION', 'eu-west-3')
+    aws_environment = os.environ.get('AWSENV', 'AWS')
 
-    context: object, required
-        Lambda Context runtime methods and attributes
+    if aws_environment == 'AWS_SAM_LOCAL':
+        article_table = boto3.resource(
+            'dynamodb',
+            endpoint_url='http://dynamodb:8000'
+        )
+    else:
+        article_table = boto3.resource(
+            'dynamodb',
+            region_name=region
+        )
 
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
+    table = article_table.Table(table_name)
+    activity = json.loads(event['body'])
 
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
+    params = {
+        'id': str(uuid.uuid4()),
+        'date': str(datetime.timestamp(datetime.now())),
+        'stage': activity['stage'],
+        'description': activity['description']
+    }
 
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
+    response = table.put_item(
+        TableName=table_name,
+        Item=params
+    )
+    print(response)
 
     return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "hello world/",
-            # "location": ip.text.replace("\n", "")
-        }),
+        'statusCode': 201,
+        'headers': {},
+        'body': json.dumps({'msg': 'Article created'})
     }
