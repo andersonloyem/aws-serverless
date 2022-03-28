@@ -27,8 +27,13 @@ Resources:
             Path: /article
             Method: post
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ArticleTable
+        - AWSLambdaExecute
+        - Version: '2012-10-17' 
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:*
+              Resource: arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*
 
   GetArticleFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction

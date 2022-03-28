@@ -30,13 +30,13 @@ def lambda_handler(event, context):
         )
 
     table = article_table.Table(table_name)
-    activity = json.loads(event['body'])
+    article = event['body']
 
     params = {
         'id': str(uuid.uuid4()),
         'date': str(datetime.timestamp(datetime.now())),
-        'stage': activity['stage'],
-        'description': activity['description']
+        'stage': article['stage'],
+        'description': article['description']
     }
 
     response = table.put_item(
