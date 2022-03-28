@@ -31,7 +31,7 @@ def lambda_handler(event, context):
 
     table = article_table.Table(table_name)
     article = event['body']
-
+    print(article)
     params = {
         'id': str(uuid.uuid4()),
         'date': str(datetime.timestamp(datetime.now())),
