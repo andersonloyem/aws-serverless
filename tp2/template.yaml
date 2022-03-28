@@ -20,7 +20,7 @@ Resources:
       Runtime: python3.9
       Environment:
         Variables:
-          TABLE: !Select [1, !Split ['/', !GetAtt DynamoDBTable.Arn]] 
+          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
