@@ -25,6 +25,9 @@ Resources:
           Properties:
             Path: /article
             Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArticleTable
 
   GetArticleFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -40,6 +43,9 @@ Resources:
           Properties:
             Path: /article
             Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArticleTable
 
   DeleteArticleFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -55,6 +61,9 @@ Resources:
           Properties:
             Path: /article
             Method: delete
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArticleTable
     
   ListArticleFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -70,8 +79,11 @@ Resources:
           Properties:
             Path: /articles
             Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArticleTable
 
-  Article:
+  ArticleTable:
     Type: AWS::DynamoDB::Table
     Properties: 
       AttributeDefinitions: 
