@@ -5,8 +5,7 @@ import json
 
 def lambda_handler(event, context):
 
-    if ('pathParameters' not in event or
-            event['httpMethod'] != 'DELETE'):
+    if ('pathParameters' not in event):
         return {
             'statusCode': 400,
             'headers': {},
