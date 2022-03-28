@@ -7,8 +7,7 @@ from datetime import datetime
 
 def lambda_handler(event, context):
 
-    if ('body' not in event or
-            event['httpMethod'] != 'POST'):
+    if ('body' not in event):
         return {
             'statusCode': 400,
             'headers': {},
