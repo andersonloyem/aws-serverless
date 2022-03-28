@@ -1,42 +1,49 @@
+import boto3
+import os
 import json
-
-# import requests
 
 
 def lambda_handler(event, context):
-    """Sample pure Lambda function
 
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
+    if ('pathParameters' not in event or
+            event['httpMethod'] != 'DELETE'):
+        return {
+            'statusCode': 400,
+            'headers': {},
+            'body': json.dumps({'msg': 'Bad Request'})
+        }
 
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+    table_name = os.environ.get('TABLE', 'Article')
+    region = os.environ.get('REGION', 'eu-west-3')
+    aws_environment = os.environ.get('AWSENV', 'AWS')
 
-    context: object, required
-        Lambda Context runtime methods and attributes
+    if aws_environment == 'AWS_SAM_LOCAL':
+        article_table = boto3.resource(
+            'dynamodb',
+            endpoint_url='http://dynamodb:8000'
+        )
+    else:
+        article_table = boto3.resource(
+            'dynamodb',
+            region_name=region
+        )
 
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
+    table = article_table.Table(table_name)
+    article_id = event['pathParameters']['id']
+    article_date = event['pathParameters']['date']
 
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
+    params = {
+        'id': article_id,
+        'date': article_date
+    }
 
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
+    response = table.delete_item(
+        Key=params
+    )
+    print(response)
 
     return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "hello world/",
-            # "location": ip.text.replace("\n", "")
-        }),
+        'statusCode': 200,
+        'headers': {},
+        'body': json.dumps({'msg': 'article deleted'})
     }
