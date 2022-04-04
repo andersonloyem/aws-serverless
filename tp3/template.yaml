@@ -1,41 +1,132 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  tp3
+  tp2
 
-  CRUD lambda S3
+  CRUD lambda dynamo BD
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 10
+    Runtime: python3.8
+    MemorySize: 1028
+
+Parameters:
+  Table:
+    Type: String
+    Default: Article
+  Region:
+    Type: String
+    Default: eu-west-3
 
 Resources:
-  HelloWorldFunction:
+  MyCountry:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: src/layers/my_country
+      CompatibleRuntimes:
+        - python3.8
+
+  PostArticleFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: hello_world/
+      CodeUri: src/article/post_article
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Environment:
+        Variables:
+          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /article
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: "*"
+
+  GetArticleFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: src/article/get_article
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
       Architectures:
         - x86_64
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /hello
+            Path: /article/{id}
             Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArticleTable
+
+  DeleteArticleFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: src/article/delete_article
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /article/{id}
+            Method: delete
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArticleTable
+    
+  ListArticleFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: src/article/list_article
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          TABLE: !Select [1, !Split ['/', !GetAtt ArticleTable.Arn]] 
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /articles
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ArticleTable
+
+  ArticleTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: id
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
+  articleApi:
+    Description: "API Gateway endpoint URL for Prod stage for article function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/dev/article/"
+  articleFunction:
     Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+    Value: !GetAtt PostArticleFunction.Arn
+  articleFunctionIamRole:
+    Description: "Implicit IAM Role created for article function"
+    Value: !GetAtt PostArticleFunctionRole.Arn

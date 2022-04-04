@@ -1,5 +1,9 @@
 import random
-
+import json
+"""
+file = open('countries-FR.json')
+countries = json.load(file)
+""" 
 countries = [
     ('US', 'United States'),
     ('AF', 'Afghanistan'),
@@ -233,8 +237,7 @@ countries = [
     ('ZW', 'Zimbabwe')
 ]
 
+
 def get_country() :
     random_country = random.choice(countries)
-    print("Country's Name: " + random_country[1])
-    print("Country's code: " + random_country[0])
     return random_country[0], random_country[1]

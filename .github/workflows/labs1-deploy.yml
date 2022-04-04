@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: tp2
+        working-directory: labs1
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -34,4 +34,4 @@ jobs:
 # Run Unit tests- Specify unit tests here 
 
 # sam deploy
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name sam-tp2 --s3-bucket sam-bucket-code --capabilities CAPABILITY_IAM --region eu-west-3
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name sam-labs1 --s3-bucket sam-bucket-code --capabilities CAPABILITY_IAM --region eu-west-3
