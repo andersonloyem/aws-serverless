@@ -21,6 +21,12 @@ Parameters:
     Default: eu-west-3
 
 Resources:
+  MyCountry:
+  Type: AWS::Serverless::LayerVersion
+  Properties:
+    ContentUri: src/my_country
+    CompatibleRuntimes:
+      - python3.8
 
   PostArticleFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
