@@ -28,6 +28,8 @@ Resources:
       ContentUri: src/layers/my_country
       CompatibleRuntimes:
         - python3.8
+    #Metadata : 
+    #  BuildMethod : python3.8
 
   getCountryFunction:
     Type: AWS::Serverless::Function 
@@ -35,7 +37,7 @@ Resources:
       CodeUri: src/country/get
       Handler: app.lambda_handler
       Events:
-        HelloWorld:
+        ApiG:
           Type: Api
           Properties:
             Path: /country
