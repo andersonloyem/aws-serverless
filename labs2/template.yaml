@@ -34,6 +34,11 @@ Resources:
     #Metadata : 
     #  BuildMethod : python3.8
 
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Description: Creating Amazon S3 bucket from CloudFormation
+    Properties:
+      BucketName: !Ref bucketPerson
   getCountryFunction:
     Type: AWS::Serverless::Function 
     Properties:
@@ -59,7 +64,7 @@ Resources:
           bucket_person: !Ref bucketPerson
           lambda_country: !GetAtt getCountryFunction.Arn
       Events:
-        HelloWorld:
+        personPost:
           Type: Api
           Properties:
             Path: /person
@@ -77,9 +82,12 @@ Resources:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: src/person/getById
-      Handler: app.lambda_handler
+      Handler: app.lambda_handler      
+      Environment:
+        Variables:
+          TABLE: !Select [1, !Split ['/', !GetAtt PersonTable.Arn]]
       Events:
-        HelloWorld:
+        personPost:
           Type: Api
           Properties:
             Path: /person

@@ -2,7 +2,6 @@
 import boto3
 import json, re, uuid
 import os
-from boto3.dynamodb.conditions import Key
 import logging
 #from country import get_country
 
